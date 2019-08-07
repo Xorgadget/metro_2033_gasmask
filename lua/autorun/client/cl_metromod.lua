@@ -110,18 +110,6 @@ local keys_table = {
 
 local key_setup = false
 
-local nv_tab = {
-	[ "$pp_colour_addr" ] = 0,
-	[ "$pp_colour_addg" ] = 0.09,
-	[ "$pp_colour_addb" ] = 0,
-	[ "$pp_colour_brightness" ] = 0,
-	[ "$pp_colour_contrast" ] = 3,
-	[ "$pp_colour_colour" ] = 1,
-	[ "$pp_colour_mulr" ] = 0,
-	[ "$pp_colour_mulg" ] = 0,
-	[ "$pp_colour_mulb" ] = 0
-}
-
 local gasmaskshit = {}
 local wipin = 0
 
@@ -131,62 +119,48 @@ local yellowwipeeffect = 0
 local wipeeffect = 0
 
 local function HasBloodtype(types)
-	if #gasmaskshit > 20 then
-		for k, v in pairs(gasmaskshit) do
-			if v.types == types then
-				return true
-			end
-		end
-	end
+  if #gasmaskshit > 20 then
+    for k, v in pairs(gasmaskshit) do
+      if v.types == types then
+        return true
+      end
+    end
+  end
 end
 
-	net.Receive( "WipeMaskHud", function(len)
-		local ply = LocalPlayer()
-		wipin = CurTime() + 0.3
-		timer.Simple(0.1, function()
-			--gasmaskshit = {}
-			for k, v in pairs(gasmaskshit) do
-				if v.types == "blooddrop" then
-					--if v.x then v.x = v.x/2 + 128 end--math.random(0,500) end
-					if v.y then v.y = v.y*2 end--ScrH() - math.random(0,ScrH()/3) end
-
-					v.xmul = math.random(-12,-25)
-
-					if v.ang then v.ang = -math.random(35,90) end
-					if v.w then v.w = math.random(70,120) end
-					if v.h then v.h = 80 end
-					if v.fallmul then v.fallmul = math.random(5,14.5) end
-					if v.falltime then v.falltime = 2 end
-						if k > 5 then
-							if v.fallmul then v.fallmul = math.random(45,50) end
-						end
-						if k > 10 then
-							if v.opacity then v.opacity = v.opacity / 6 end
-						end
-				else
-					if v.opacity then v.opacity = v.opacity / 6 end
-
-					if v.y then v.y = v.y + 128 end
-					if v.fallmul then v.fallmul = math.random(10,25) end
-					v.xmul = math.random(-12,-25)
-						--if k > 20 then
-						--	if v.opacity then v.opacity = 5 end
-						--end
-				end
-			end
-			if #gasmaskshit > 0 then
-				--timer.Simple(0.1, function()
-					wipeeffect = CurTime() + 0.3
-					if HasBloodtype("blooddrop") then
-						redwipeeffect = CurTime() + 0.3
-					end
-					if HasBloodtype("ybloodsplat") then
-						yellowwipeeffect = CurTime() + 0.3
-					end
-				--end)
-			end
-		end)
-	end)
+  net.Receive( "WipeMaskHud", function(len)
+    wipin = CurTime() + 0.3
+    timer.Simple(0.1, function()
+      for k, v in pairs(gasmaskshit) do
+        if v.types == "blooddrop" then
+          if v.y then v.y = v.y * 2 end
+          v.xmul = math.random( -12, -25 )
+          if v.ang then v.ang = -math.random(35,90) end
+          if v.w then v.w = math.random(70,120) end
+          if v.h then v.h = 80 end
+          if v.fallmul then v.fallmul = math.random(5,14.5) end
+          if v.falltime then v.falltime = 2 end
+          if k > 5 and v.fallmul then v.fallmul = math.random(45,50) end
+          if k > 10 and v.opacity then v.opacity = v.opacity / 6 then
+          end
+        else
+          if v.opacity then v.opacity = v.opacity / 6 end
+          if v.y then v.y = v.y + 128 end
+          if v.fallmul then v.fallmul = math.random(10,25) end
+          v.xmul = math.random(-12,-25)
+        end
+      end
+      if #gasmaskshit > 0 then
+        wipeeffect = CurTime() + 0.3
+        if HasBloodtype("blooddrop") then
+          redwipeeffect = CurTime() + 0.3
+        end
+        if HasBloodtype("ybloodsplat") then
+          yellowwipeeffect = CurTime() + 0.3
+        end
+      end
+    end)
+  end)
 
 	net.Receive( "ClearMask", function(len)
 		local ply = LocalPlayer()
@@ -208,7 +182,7 @@ end
 		elseif types == "bloodsplat" then
 			local sizerand = math.random(256, 256)
 			newshitonscreen = {
-				[table.Count(gasmaskshit)] = {opacity = 255, x = math.random(200,ScrW()-200), y = math.random(ScrH()/2+100,ScrH()/2-300), material = "part/wm_blood_wm"..math.random(1,7), ang = math.random(-12, 12), w = sizerand , h = sizerand, types = types, fallmul = 0.11, falltime = 0 }
+				[table.Count(gasmaskshit) ] = {opacity = 255, x = math.random(200,ScrW()-200), y = math.random(ScrH()/2+100,ScrH()/2-300), material = "part/wm_blood_wm"..math.random(1,7), ang = math.random(-12, 12), w = sizerand , h = sizerand, types = types, fallmul = 0.11, falltime = 0 }
 			}
 		elseif types == "ybloodsplat" then
 			local sizerand = math.random(300, 600)
@@ -640,9 +614,9 @@ local FT = FrameTime()
 
 KeySetupHUD()
 
-if GetConVarNumber ( "cl_drawhud" ) == 0 then return end
+if GetConVar("cl_drawhud"):GetInt() == 0 then return end
 
-	if ply:GetNWInt("checkgasmask") > CurTime() then
+	if ply:GetNWInt( "checkgasmask" ) > CurTime() then
 		checkgasmask_mul = Lerp(FT*4, checkgasmask_mul, 1)
 	else
 		checkgasmask_mul = Lerp(FT*4, checkgasmask_mul, 0)
